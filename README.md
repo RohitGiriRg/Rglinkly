@@ -1,1 +1,1 @@
-Mono-repo for full stack MERN Project (URL Shortner)
+Mono-repo for full stack MERN Project (URL Shortener)
