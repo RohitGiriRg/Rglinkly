@@ -1,81 +1,106 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import styles from "./Homepage.module.css";
+import Hero from "./components/Hero";
+import LinksTable from "./components/LinksTable";
+import Navbar from "./components/Navbar";
+import { LinkItem } from "./types";
+import {
+  createLinkItem,
+  isValidHttpUrl,
+  parseShortenResponse,
+} from "./utils";
+
+const STORAGE_KEY = "rglinkly_links";
+
+const getActiveLinks = (links: LinkItem[]) => {
+  const now = Date.now();
+  return links.filter((link) => link.expiresAt > now);
+};
 
 export default function Homepage() {
-    return (
-        <main className={styles.wrapper}>
-            {/* Navbar */}
-            <header className={styles.navbar}>
-                <div className={styles.logo}>
-                    Rg<span>Linkly</span>
-                </div>
+  const [links, setLinks] = useState<LinkItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-                <div className={styles.actions}>
-                    <button className={styles.ghostBtn}>Login</button>
-                    <button className={styles.primaryBtn}>Register Now</button>
-                </div>
-            </header>
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        return;
+      }
 
-            {/* Hero */}
-            <section className={styles.hero}>
-                <h1 className={styles.title}>
-                    Shorten Your <span>Loooong</span> Links :)
-                </h1>
+      const parsed = JSON.parse(raw) as LinkItem[];
+      const activeLinks = getActiveLinks(parsed);
+      setLinks(activeLinks);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(activeLinks));
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, []);
 
-                <p className={styles.subtitle}>
-                    RgLinkly is an efficient and easy-to-use URL shortening service that
-                    streamlines your online experience.
-                </p>
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(getActiveLinks(links)));
+  }, [links]);
 
-                <div className={styles.inputBox}>
-                    <input
-                        type="text"
-                        placeholder="Enter the link here"
-                        className={styles.input}
-                    />
-                    <button className={styles.primaryBtn}>Shorten Now!</button>
-                </div>
+  const handleShorten = async (url: string) => {
+    setError(null);
+    setSuccess(null);
 
-                <div className={styles.hint}>
-                    <span className={styles.dot} />
-                    Auto Paste from Clipboard
-                </div>
-            </section>
+    if (!url) {
+      setError("Please enter a URL.");
+      return;
+    }
 
-            {/* Table */}
-            <section className={styles.tableSection}>
-                <table className={styles.table}>
-                    <thead>
-                        <tr>
-                            <th>Short Link</th>
-                            <th>Original Link</th>
-                            <th>QR Code</th>
-                            <th>Clicks</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Rglinkly.com/Bn41aC0lNx</td>
-                            <td>https://twitter.com/...</td>
-                            <td>⬜</td>
-                            <td>1313</td>
-                            <td className={styles.active}>Active</td>
-                            <td>Oct-10-2023</td>
-                        </tr>
-                        <tr>
-                            <td>Rglinkly.com/Bn41aC0lNx</td>
-                            <td>https://youtube.com/...</td>
-                            <td>⬜</td>
-                            <td>4313</td>
-                            <td className={styles.inactive}>Inactive</td>
-                            <td>Oct-08-2023</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-        </main>
-    );
+    if (!isValidHttpUrl(url)) {
+      setError("Enter a valid URL starting with http:// or https://");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch("/api/shorten", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+
+      const payload = await parseShortenResponse(response);
+
+      if (!response.ok || !payload.shortUrl) {
+        setError(payload.error ?? "Failed to shorten URL.");
+        return;
+      }
+
+      const newLink = createLinkItem(url, payload.shortUrl);
+      setLinks((prev) => [newLink, ...getActiveLinks(prev)]);
+      setSuccess("Link shortened successfully. This short link is kept for 24 hours.");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main className={styles.wrapper}>
+      <Navbar />
+      <Hero
+        onShorten={handleShorten}
+        loading={loading}
+        error={error}
+        success={success}
+      />
+
+      <p className={styles.storageNote}>
+        Note: Each shortened URL is valid for 24 hours and both the original URL
+        and shortened URL are saved in your browser local storage.
+      </p>
+
+      <LinksTable links={links} />
+    </main>
+  );
 }
