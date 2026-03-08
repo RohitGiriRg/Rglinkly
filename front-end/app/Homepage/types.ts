@@ -4,7 +4,6 @@ export interface LinkItem {
   id: string;
   shortLink: string;
   originalLink: string;
-  clicks: number;
   status: LinkStatus;
   date: string;
   createdAt: number;

@@ -1,8 +1,47 @@
+import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
+import { db } from "@/lib/firebaseAdmin";
+
+export const runtime = "nodejs";
+
+const LINKS_COLLECTION = "links";
+const LINK_TTL_MS = 24 * 60 * 60 * 1000;
 
 interface ShortenResponse {
   shortUrl: string;
 }
+
+interface LinkDocument {
+  slug: string;
+  originalUrl: string;
+  shortUrl: string;
+  createdAt: number;
+  expiresAt: number;
+  status: "active" | "expired";
+}
+
+const getBaseUrl = (requestUrl: string) => {
+  const configured = process.env.NEXT_PUBLIC_APP_BASE_URL?.trim();
+  if (configured) {
+    return configured.replace(/\/$/, "");
+  }
+
+  return new URL(requestUrl).origin;
+};
+
+const createUniqueSlug = async (maxAttempts = 5) => {
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const slug = nanoid(7);
+    const docRef = db.collection(LINKS_COLLECTION).doc(slug);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return { slug, docRef };
+    }
+  }
+
+  throw new Error("Unable to generate a unique short URL slug");
+};
 
 export async function POST(req: Request) {
   try {
@@ -27,27 +66,24 @@ export async function POST(req: Request) {
       );
     }
 
-    const shortenerUrl = `https://is.gd/create.php?format=simple&url=${encodeURIComponent(
-      parsedUrl.toString()
-    )}`;
+    const { slug, docRef } = await createUniqueSlug();
+    const now = Date.now();
+    const baseUrl = getBaseUrl(req.url);
+    const shortUrl = `${baseUrl}/r/${slug}`;
 
-    const response = await fetch(shortenerUrl, {
-      method: "GET",
-      headers: { Accept: "text/plain" },
-      cache: "no-store",
-    });
+    const payload: LinkDocument = {
+      slug,
+      originalUrl: parsedUrl.toString(),
+      shortUrl,
+      createdAt: now,
+      expiresAt: now + LINK_TTL_MS,
+      status: "active",
+    };
 
-    const text = (await response.text()).trim();
+    await docRef.set(payload);
 
-    if (!response.ok || !text || text.startsWith("Error:")) {
-      return NextResponse.json(
-        { error: "Shortening service failed. Try again." },
-        { status: 502 }
-      );
-    }
-
-    const payload: ShortenResponse = { shortUrl: text };
-    return NextResponse.json(payload);
+    const response: ShortenResponse = { shortUrl };
+    return NextResponse.json(response);
   } catch {
     return NextResponse.json({ error: "Unexpected server error" }, { status: 500 });
   }

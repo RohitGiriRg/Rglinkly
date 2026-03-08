@@ -30,7 +30,6 @@ export default function LinksTable({ links }: LinksTableProps) {
               <th>Short Link</th>
               <th>Original Link</th>
               <th>QR Code</th>
-              <th>Clicks</th>
               <th>Status</th>
               <th>Date</th>
               <th>Actions</th>
@@ -39,7 +38,7 @@ export default function LinksTable({ links }: LinksTableProps) {
           <tbody>
             {links.length === 0 ? (
               <tr>
-                <td colSpan={7} className={styles.emptyRow}>
+                <td colSpan={6} className={styles.emptyRow}>
                   No links yet. Shorten your first URL above.
                 </td>
               </tr>
@@ -70,7 +69,6 @@ export default function LinksTable({ links }: LinksTableProps) {
                       <span aria-hidden="true">▦</span> Generate QR
                     </button>
                   </td>
-                  <td>{link.clicks}</td>
                   <td
                     className={
                       link.status === "Active" ? styles.active : styles.inactive

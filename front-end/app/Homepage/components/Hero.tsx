@@ -16,7 +16,7 @@ export default function Hero({ onShorten, loading, error, success }: HeroProps) 
       </h1>
 
       <p className={styles.subtitle}>
-        RgLinkly is an efficient and easy-to-use URL shortening service that
+        Toolzaar URL Shorten is an efficient and easy-to-use URL shortening service that
         streamlines your online experience.
       </p>
 

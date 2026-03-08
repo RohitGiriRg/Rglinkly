@@ -1,4 +1,4 @@
-# RgLinkly Front-end
+# Toolzaar URL Shorten Front-end
 
 Next.js 16 app for shortening URLs, listing results, and managing a responsive dashboard UI.
 
@@ -38,7 +38,7 @@ Open `http://localhost:3000`.
 This project currently works without custom environment variables.
 
 Optional (recommended for branding/deploy consistency):
-- `NEXT_PUBLIC_APP_URL` - canonical frontend URL (e.g. `https://rglinkly.com`)
+- `NEXT_PUBLIC_APP_URL` - canonical frontend URL (e.g. `https://Toolzaar URL Shorten.com`)
 
 ## Testing
 Current test coverage includes:

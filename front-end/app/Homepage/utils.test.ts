@@ -18,7 +18,6 @@ describe("Homepage utils", () => {
     expect(item.originalLink).toBe("https://a.com");
     expect(item.shortLink).toBe("https://is.gd/test");
     expect(item.status).toBe("Active");
-    expect(item.clicks).toBe(0);
     expect(item.id).toBeTruthy();
     expect(item.expiresAt - item.createdAt).toBe(24 * 60 * 60 * 1000);
   });

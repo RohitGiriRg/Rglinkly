@@ -26,7 +26,6 @@ export const createLinkItem = (
   id: crypto.randomUUID(),
   shortLink,
   originalLink,
-  clicks: 0,
   status: "Active",
   date: formatLinkDate(date),
   createdAt: date.getTime(),

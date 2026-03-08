@@ -13,34 +13,34 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://rglinkly.com"),
+  metadataBase: new URL("https://toolzaar.in"),
   title: {
-    default: "RgLinkly | Smart URL Shortener",
-    template: "%s | RgLinkly",
+    default: "Toolzaar URL Shorten | Smart URL Shortener",
+    template: "%s | Toolzaar URL Shorten",
   },
   description:
-    "Shorten long URLs, manage links, and share clean short links instantly with RgLinkly.",
-  applicationName: "RgLinkly",
+    "Shorten long URLs, manage links, and share clean short links instantly with Toolzaar URL Shorten.",
+  applicationName: "Toolzaar URL Shorten",
   keywords: [
     "URL shortener",
     "link management",
     "short links",
-    "Rglinkly",
+    "Toolzaar URL Shorten",
     "QR links",
   ],
   openGraph: {
-    title: "RgLinkly | Smart URL Shortener",
+    title: "Toolzaar URL Shorten | Smart URL Shortener",
     description:
-      "Create short links fast, track them, and share them beautifully with RgLinkly.",
-    url: "https://rglinkly.com",
-    siteName: "RgLinkly",
+      "Create short links fast, track them, and share them beautifully with Toolzaar URL Shorten.",
+    url: "https://Toolzaar URL Shorten.com",
+    siteName: "Toolzaar URL Shorten",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "RgLinkly | Smart URL Shortener",
+    title: "Toolzaar URL Shorten | Smart URL Shortener",
     description:
-      "Create short links fast, track them, and share them beautifully with RgLinkly.",
+      "Create short links fast, track them, and share them beautifully with Toolzaar URL Shorten.",
   },
 };
 

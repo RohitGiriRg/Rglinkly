@@ -12,12 +12,23 @@ import {
   parseShortenResponse,
 } from "./utils";
 
-const STORAGE_KEY = "rglinkly_links";
+const STORAGE_KEY = "Toolzaar URL Shorten_links";
 
 const getActiveLinks = (links: LinkItem[]) => {
   const now = Date.now();
   return links.filter((link) => link.expiresAt > now);
 };
+
+const sanitizeLinksForStorage = (links: LinkItem[]): LinkItem[] =>
+  links.map(({ id, shortLink, originalLink, status, date, createdAt, expiresAt }) => ({
+    id,
+    shortLink,
+    originalLink,
+    status,
+    date,
+    createdAt,
+    expiresAt,
+  }));
 
 export default function Homepage() {
   const [links, setLinks] = useState<LinkItem[]>([]);
@@ -33,7 +44,7 @@ export default function Homepage() {
       }
 
       const parsed = JSON.parse(raw) as LinkItem[];
-      const activeLinks = getActiveLinks(parsed);
+      const activeLinks = sanitizeLinksForStorage(getActiveLinks(parsed));
       setLinks(activeLinks);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(activeLinks));
     } catch {
@@ -42,7 +53,8 @@ export default function Homepage() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(getActiveLinks(links)));
+    const sanitized = sanitizeLinksForStorage(getActiveLinks(links));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
   }, [links]);
 
   const handleShorten = async (url: string) => {
