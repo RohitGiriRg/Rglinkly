@@ -1,0 +1,6 @@
+Features:
+1. Firebase in the backend - Fater
+2. Next JS in the frontend which make the website fast
+
+Features which need to add:
+1. Create an cron job for automatically deletion of the url from the firebase after 24 hours Status:inActive
